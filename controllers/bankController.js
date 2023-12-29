@@ -114,7 +114,7 @@ export function getUserById(req, res, next) {
   }
 }
 
-// @des      Deposits cash to a user by id
+// @des      Deposits cash in bank
 // @route    PUT /api/v1/bank/deposit/:id
 // @access   Public
 export function depositCash(req, res, next) {
@@ -126,11 +126,44 @@ export function depositCash(req, res, next) {
       throw new Error("User with this ID doesn't exist");
     }
 
-    const prevCash = data[index].cash;
+    if (+req.query.cash < 0) {
+      res.status(STATUS_CODE.FORBIDDEN);
+      throw new Error("Cant deposit negative cash!");
+    }
 
+    const prevCash = data[index].cash;
     const updatedUser = {
       ...data[index],
       cash: +prevCash + +req.query.cash,
+    };
+    data[index] = updatedUser;
+    writeToBankFile(data);
+    res.send(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// @des      Deposits credit in the bank
+// @route    PUT /api/v1/bank/withdraw/:id
+// @access   Public
+export function depositCredit(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const index = data.findIndex((user) => user.id === req.params.id);
+    if (index === -1) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error("User with this ID doesn't exist");
+    }
+
+    if (+req.query.credit < 0) {
+      res.status(STATUS_CODE.FORBIDDEN);
+      throw new Error("Cant deposit negative credit!");
+    }
+    const prevCredit = data[index].credit;
+    const updatedUser = {
+      ...data[index],
+      credit: +prevCredit + +req.query.credit,
     };
     data[index] = updatedUser;
     writeToBankFile(data);
