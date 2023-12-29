@@ -1,4 +1,4 @@
-import STATUS_CODE from "../constants/StatusCode.js";
+import STATUS_CODE from "../constants/statusCode.js";
 import { readFromBankFile, writeToBankFile } from "../models/bankModel.js";
 import { v4 as uuidv4 } from "uuid";
 
@@ -121,6 +121,10 @@ export function depositCash(req, res, next) {
   try {
     const data = readFromBankFile();
     const findUser = data.find((user) => user.id === req.params.id);
+    if (!findUser) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error("User with this ID doesn't exist");
+    }
   } catch (error) {
     next(error);
   }

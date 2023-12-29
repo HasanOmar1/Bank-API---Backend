@@ -1,5 +1,5 @@
 import "dotenv/config";
-import STATUS_CODE from "../constants/StatusCode.js";
+import STATUS_CODE from "../constants/statusCode.js";
 
 export function errorHandler(err, req, res, next) {
   const statusCode =
