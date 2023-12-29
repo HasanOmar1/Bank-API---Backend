@@ -1,7 +1,7 @@
 import "dotenv/config";
 import STATUS_CODE from "../constants/StatusCode.js";
 
-export function errorHandler(err, req, res, enxt) {
+export function errorHandler(err, req, res, next) {
   const statusCode =
     res.statusCode === STATUS_CODE.OK
       ? STATUS_CODE.INTERNAL_SERVER_ERROR

@@ -98,7 +98,7 @@ export function deleteUser(req, res, next) {
 }
 
 // @des      Gets user info by id
-// @route    DELETE /api/v1/bank/:id
+// @route    GET /api/v1/bank/:id
 // @access   Public
 export function getUserById(req, res, next) {
   try {
@@ -114,8 +114,13 @@ export function getUserById(req, res, next) {
   }
 }
 
+// @des      Deposits cash to a user by id
+// @route    PUT /api/v1/bank/:id
+// @access   Public
 export function depositCash(req, res, next) {
   try {
+    const data = readFromBankFile();
+    const findUser = data.find((user) => user.id === req.params.id);
   } catch (error) {
     next(error);
   }
