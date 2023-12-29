@@ -15,12 +15,12 @@ export function getBankData(req, res, next) {
 }
 
 // @des      Creates new user
-// @route    POST /api/v1/movies
+// @route    POST /api/v1/bank
 // @access   Public
 export function createUser(req, res, next) {
   try {
     const { name, cash, credit } = req.body;
-    if (!name || !cash || !credit) {
+    if (!name || cash === undefined || credit === undefined) {
       res.status(STATUS_CODE.BAD_REQUEST);
       throw new Error("All fields must be filled!");
     }
@@ -48,7 +48,7 @@ export function createUser(req, res, next) {
 export function updateUser(req, res, next) {
   try {
     const { name, cash, credit } = req.body;
-    if (!name || !cash || !credit) {
+    if (!name || cash === undefined || credit === undefined) {
       res.status(STATUS_CODE.BAD_REQUEST);
       throw new Error("All fields must be filled!");
     }
@@ -115,16 +115,26 @@ export function getUserById(req, res, next) {
 }
 
 // @des      Deposits cash to a user by id
-// @route    PUT /api/v1/bank/:id
+// @route    PUT /api/v1/bank/deposit/:id
 // @access   Public
 export function depositCash(req, res, next) {
   try {
     const data = readFromBankFile();
-    const findUser = data.find((user) => user.id === req.params.id);
-    if (!findUser) {
+    const index = data.findIndex((user) => user.id === req.params.id);
+    if (index === -1) {
       res.status(STATUS_CODE.NOT_FOUND);
       throw new Error("User with this ID doesn't exist");
     }
+
+    const prevCash = data[index].cash;
+
+    const updatedUser = {
+      ...data[index],
+      cash: +prevCash + +req.query.cash,
+    };
+    data[index] = updatedUser;
+    writeToBankFile(data);
+    res.send(updatedUser);
   } catch (error) {
     next(error);
   }
