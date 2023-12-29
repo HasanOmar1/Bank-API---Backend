@@ -154,8 +154,8 @@ export function withdrawMoney(req, res, next) {
     const prevCredit = data[index].credit;
 
     if (+req.query.money > +prevCash + +prevCredit) {
-      res.status(STATUS_CODE.FORBIDDEN);
-      throw new Error("You don't have that amount of cash to withdraw.");
+      res.status(STATUS_CODE.BAD_REQUEST);
+      throw new Error("You don't have that amount of money to withdraw.");
     }
     if (+prevCash > +req.query.money) {
       const updatedUser = {
@@ -176,6 +176,47 @@ export function withdrawMoney(req, res, next) {
       data[index] = updatedUser;
       writeToBankFile(data);
       res.send(updatedUser);
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
+// @des      Transfers money from one user to another [money goes to credit]
+// @route    PUT /api/v1/bank/transfer/:recipientId/from/:senderId?money=[value]
+// @access   Public
+export function transferMoney(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const senderIndex = data.findIndex(
+      (user) => user.id === req.params.senderId
+    );
+    const recipientIndex = data.findIndex(
+      (user) => user.id === req.params.recipientId
+    );
+    if (senderIndex === -1 || recipientIndex === -1) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error("The sender or the recipient does not exist.");
+    }
+
+    const senderPrevCash = data[senderIndex].cash;
+    const senderPrevCredit = data[senderIndex].credit;
+
+    const recipientPrevCash = data[recipientIndex].cash;
+    const recipientPrevCredit = data[recipientIndex].credit;
+
+    if (+req.query.money > +senderPrevCash + +senderPrevCredit) {
+      res.status(STATUS_CODE.BAD_REQUEST);
+      throw new Error("You don't have that amount of money to transfer.");
+    }
+    if (+senderPrevCash > +req.query.money) {
+      const updatedSenderUser = {
+        ...data[senderIndex],
+        cash: +senderPrevCash - +req.query.money,
+      };
+      data[senderIndex] = updatedSenderUser;
+      writeToBankFile(data);
+      res.send(updatedSenderUser);
     }
   } catch (error) {
     next(error);

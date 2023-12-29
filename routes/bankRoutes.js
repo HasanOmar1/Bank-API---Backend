@@ -5,6 +5,7 @@ import {
   depositCash,
   getBankData,
   getUserById,
+  transferMoney,
   updateUserCredit,
   withdrawMoney,
 } from "../controllers/bankController.js";
@@ -17,6 +18,7 @@ router.post("/", createUser);
 router.put("/:id", updateUserCredit);
 router.put("/deposit/:id", depositCash);
 router.put("/withdraw/:id", withdrawMoney);
+router.put("/transfer/:recipientId/from/:senderId", transferMoney);
 router.delete("/:id", deleteUser);
 
 export default router;
