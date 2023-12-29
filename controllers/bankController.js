@@ -202,7 +202,7 @@ export function transferMoney(req, res, next) {
     const senderPrevCash = data[senderIndex].cash;
     const senderPrevCredit = data[senderIndex].credit;
 
-    const recipientPrevCash = data[recipientIndex].cash;
+    // const recipientPrevCash = data[recipientIndex].cash;
     const recipientPrevCredit = data[recipientIndex].credit;
 
     if (+req.query.money > +senderPrevCash + +senderPrevCredit) {
@@ -215,6 +215,32 @@ export function transferMoney(req, res, next) {
         cash: +senderPrevCash - +req.query.money,
       };
       data[senderIndex] = updatedSenderUser;
+
+      const updatedRecipientUser = {
+        ...data[recipientIndex],
+        credit: +recipientPrevCredit + +req.query.money,
+      };
+      data[recipientIndex] = updatedRecipientUser;
+
+      writeToBankFile(data);
+      res.send(updatedSenderUser);
+      res.send(updatedRecipientUser);
+    }
+
+    if (+req.query.money > +senderPrevCash) {
+      const updatedSenderUser = {
+        ...data[senderIndex],
+        cash: 0,
+        credit: +senderPrevCredit - (+req.query.money - +senderPrevCash),
+      };
+      data[senderIndex] = updatedSenderUser;
+
+      const updatedRecipientUser = {
+        ...data[recipientIndex],
+        credit: +recipientPrevCredit + +req.query.money,
+      };
+      data[recipientIndex] = updatedRecipientUser;
+
       writeToBankFile(data);
       res.send(updatedSenderUser);
     }
