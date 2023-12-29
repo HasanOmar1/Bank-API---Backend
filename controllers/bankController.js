@@ -202,7 +202,6 @@ export function transferMoney(req, res, next) {
     const senderPrevCash = data[senderIndex].cash;
     const senderPrevCredit = data[senderIndex].credit;
 
-    // const recipientPrevCash = data[recipientIndex].cash;
     const recipientPrevCredit = data[recipientIndex].credit;
 
     if (+req.query.money > +senderPrevCash + +senderPrevCredit) {
