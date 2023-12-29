@@ -42,41 +42,6 @@ export function createUser(req, res, next) {
   }
 }
 
-// @des      Updates a user
-// @route    PUT /api/v1/bank/:id
-// @access   Public
-export function updateUser(req, res, next) {
-  try {
-    const { name, cash, credit } = req.body;
-    if (!name || cash === undefined || credit === undefined) {
-      res.status(STATUS_CODE.BAD_REQUEST);
-      throw new Error("All fields must be filled!");
-    }
-    const data = readFromBankFile();
-
-    const index = data.findIndex((user) => user.id === req.params.id);
-    if (index === -1) {
-      res.status(STATUS_CODE.NOT_FOUND);
-      throw new Error("User with this id is not found");
-    }
-
-    const lastIndex = data.findLastIndex((user) => user.name === name);
-    if (lastIndex !== -1 && lastIndex !== index) {
-      res.status(STATUS_CODE.BAD_REQUEST);
-      throw new Error(
-        "Failed to update user , user with this name already exists"
-      );
-    }
-
-    const updatedUser = { ...data[index], name, cash, credit };
-    data[index] = updatedUser;
-    writeToBankFile(data);
-    res.send(updatedUser);
-  } catch (error) {
-    next(error);
-  }
-}
-
 // @des      Deletes a user
 // @route    DELETE /api/v1/bank/:id
 // @access   Public
@@ -115,7 +80,7 @@ export function getUserById(req, res, next) {
 }
 
 // @des      Deposits cash in bank
-// @route    PUT /api/v1/bank/deposit/:id
+// @route    PUT /api/v1/bank/deposit-cash/:id?cash=[cash value]
 // @access   Public
 export function depositCash(req, res, next) {
   try {
@@ -144,10 +109,39 @@ export function depositCash(req, res, next) {
   }
 }
 
-// @des      Deposits credit in the bank
+// @des      Updates user's credit
+// @route    PUT /api/v1/bank/:id?credit=[credit value]
+// @access   Public
+export function updateUserCredit(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const index = data.findIndex((user) => user.id === req.params.id);
+    if (index === -1) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error("User with this id is not found");
+    }
+
+    if (req.query.credit < 0) {
+      res.status(STATUS_CODE.BAD_REQUEST);
+      throw new Error("Failed to add credit , only positive credits allowed!");
+    }
+
+    const updatedUser = {
+      ...data[index],
+      credit: +req.query.credit,
+    };
+    data[index] = updatedUser;
+    writeToBankFile(data);
+    res.send(updatedUser);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// @des      Withdraws money from the bank
 // @route    PUT /api/v1/bank/withdraw/:id
 // @access   Public
-export function depositCredit(req, res, next) {
+export function withdrawMoney(req, res, next) {
   try {
     const data = readFromBankFile();
     const index = data.findIndex((user) => user.id === req.params.id);
@@ -156,18 +150,33 @@ export function depositCredit(req, res, next) {
       throw new Error("User with this ID doesn't exist");
     }
 
-    if (+req.query.credit < 0) {
-      res.status(STATUS_CODE.FORBIDDEN);
-      throw new Error("Cant deposit negative credit!");
-    }
+    const prevCash = data[index].cash;
     const prevCredit = data[index].credit;
-    const updatedUser = {
-      ...data[index],
-      credit: +prevCredit + +req.query.credit,
-    };
-    data[index] = updatedUser;
-    writeToBankFile(data);
-    res.send(updatedUser);
+
+    if (+req.query.money > +prevCash + +prevCredit) {
+      res.status(STATUS_CODE.FORBIDDEN);
+      throw new Error("You don't have that amount of cash to withdraw.");
+    }
+    if (+prevCash > +req.query.money) {
+      const updatedUser = {
+        ...data[index],
+        cash: +prevCash - +req.query.money,
+      };
+      data[index] = updatedUser;
+      writeToBankFile(data);
+      res.send(updatedUser);
+    }
+
+    if (+req.query.money > +prevCash) {
+      const updatedUser = {
+        ...data[index],
+        cash: 0,
+        credit: +prevCredit - (+req.query.money - +prevCash),
+      };
+      data[index] = updatedUser;
+      writeToBankFile(data);
+      res.send(updatedUser);
+    }
   } catch (error) {
     next(error);
   }
