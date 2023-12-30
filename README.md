@@ -69,7 +69,9 @@ Backend Link : https://bank-api-backend.onrender.com/
 - When a user withdraws money from his account , first he will withdraw from his cash and if he doesn't have anymore cash
   he will withdraw from his credit.
 
-- When a user transfers money from his bank account to another user , he will transfer using cash and if he doesn't have cash anymore he will transfer his credit , and the other user will always get the money as credit and not cash.
+- When a user transfers money from his bank account to another user , he will transfer using cash and if he doesn't have cash anymore he will transfer his credit , and the other user will always get the money as credit and not as cash.
+
+---
 
 ## How to:
 
