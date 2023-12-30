@@ -52,9 +52,16 @@ Backend Link : https://bank-api-backend.onrender.com/
 - You can delete a user.
 
 - You can deposit cash to a specific user.
-- You can update credits of a specific user.
+- You can update the credit of a specific user.
 
 - A user can withdraw money from his bank account.
 - A user can transfer money from his bank account to someone else's bank account.
 
 ---
+
+## Things to know:
+
+- When a user withdraws money from his account , first he will withdraw from his cash and if he doesn't have anymore cash
+  he will withdraw from his credit.
+
+- When a user transfers money from his bank account to another user , he will transfer using cash and if he doesn't have cash anymore he will transfer his credit , and the other user will always get the money as credit and not cash.
