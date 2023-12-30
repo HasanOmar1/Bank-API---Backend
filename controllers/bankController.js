@@ -19,8 +19,13 @@ export function getBankData(req, res, next) {
 // @access   Public
 export function createUser(req, res, next) {
   try {
-    const { name, cash, credit } = req.body;
-    if (!name || cash === undefined || credit === undefined) {
+    const { name, cash, credit, isActive } = req.body;
+    if (
+      !name ||
+      cash === undefined ||
+      credit === undefined ||
+      isActive === undefined
+    ) {
       res.status(STATUS_CODE.BAD_REQUEST);
       throw new Error("All fields must be filled!");
     }
@@ -32,7 +37,7 @@ export function createUser(req, res, next) {
       throw new Error("User with this name already exists!");
     }
 
-    const newUser = { id: uuidv4(), name, cash, credit };
+    const newUser = { id: uuidv4(), name, cash, credit, isActive };
     data.push(newUser);
     writeToBankFile(data);
     res.status(STATUS_CODE.CREATED).send(newUser);
@@ -153,14 +158,19 @@ export function depositCash(req, res, next) {
       throw new Error("Cant deposit negative cash!");
     }
 
-    const prevCash = data[index].cash;
-    const updatedUser = {
-      ...data[index],
-      cash: +prevCash + +req.query.cash,
-    };
-    data[index] = updatedUser;
-    writeToBankFile(data);
-    res.send(updatedUser);
+    if (data[index].isActive === true) {
+      const prevCash = data[index].cash;
+      const updatedUser = {
+        ...data[index],
+        cash: +prevCash + +req.query.cash,
+      };
+      data[index] = updatedUser;
+      writeToBankFile(data);
+      res.send(updatedUser);
+    } else {
+      res.status(STATUS_CODE.BAD_REQUEST);
+      res.send("Cannot deposit cash to inActive users!");
+    }
   } catch (error) {
     next(error);
   }
@@ -183,13 +193,18 @@ export function updateUserCredit(req, res, next) {
       throw new Error("Failed to add credit , only positive credits allowed!");
     }
 
-    const updatedUser = {
-      ...data[index],
-      credit: +req.query.credit,
-    };
-    data[index] = updatedUser;
-    writeToBankFile(data);
-    res.send(updatedUser);
+    if (data[index].isActive === true) {
+      const updatedUser = {
+        ...data[index],
+        credit: +req.query.credit,
+      };
+      data[index] = updatedUser;
+      writeToBankFile(data);
+      res.send(updatedUser);
+    } else {
+      res.status(STATUS_CODE.BAD_REQUEST);
+      res.send("Cannot update credits of inActive users!");
+    }
   } catch (error) {
     next(error);
   }
@@ -214,25 +229,30 @@ export function withdrawMoney(req, res, next) {
       res.status(STATUS_CODE.BAD_REQUEST);
       throw new Error("You don't have that amount of money to withdraw.");
     }
-    if (+prevCash > +req.query.money) {
-      const updatedUser = {
-        ...data[index],
-        cash: +prevCash - +req.query.money,
-      };
-      data[index] = updatedUser;
-      writeToBankFile(data);
-      res.send(updatedUser);
-    }
+    if (data[index].isActive === true) {
+      if (+prevCash > +req.query.money) {
+        const updatedUser = {
+          ...data[index],
+          cash: +prevCash - +req.query.money,
+        };
+        data[index] = updatedUser;
+        writeToBankFile(data);
+        res.send(updatedUser);
+      }
 
-    if (+req.query.money > +prevCash) {
-      const updatedUser = {
-        ...data[index],
-        cash: 0,
-        credit: +prevCredit - (+req.query.money - +prevCash),
-      };
-      data[index] = updatedUser;
-      writeToBankFile(data);
-      res.send(updatedUser);
+      if (+req.query.money > +prevCash) {
+        const updatedUser = {
+          ...data[index],
+          cash: 0,
+          credit: +prevCredit - (+req.query.money - +prevCash),
+        };
+        data[index] = updatedUser;
+        writeToBankFile(data);
+        res.send(updatedUser);
+      }
+    } else {
+      res.status(STATUS_CODE.BAD_REQUEST);
+      res.send("Cannot withdraw money from inActive account!");
     }
   } catch (error) {
     next(error);
@@ -271,41 +291,97 @@ export function transferMoney(req, res, next) {
       throw new Error("You Cannot send money to yourself!");
     }
 
-    if (+senderPrevCash > +req.query.money) {
-      const updatedSenderUser = {
-        ...data[senderIndex],
-        cash: +senderPrevCash - +req.query.money,
-      };
-      data[senderIndex] = updatedSenderUser;
+    if (
+      data[senderIndex].isActive === true &&
+      data[recipientIndex].isActive === true
+    ) {
+      if (+senderPrevCash > +req.query.money) {
+        const updatedSenderUser = {
+          ...data[senderIndex],
+          cash: +senderPrevCash - +req.query.money,
+        };
+        data[senderIndex] = updatedSenderUser;
 
-      const updatedRecipientUser = {
-        ...data[recipientIndex],
-        credit: +recipientPrevCredit + +req.query.money,
-      };
-      data[recipientIndex] = updatedRecipientUser;
+        const updatedRecipientUser = {
+          ...data[recipientIndex],
+          credit: +recipientPrevCredit + +req.query.money,
+        };
+        data[recipientIndex] = updatedRecipientUser;
 
-      writeToBankFile(data);
-      const senderAndRecipient = [updatedSenderUser, updatedRecipientUser];
-      res.send(senderAndRecipient);
+        writeToBankFile(data);
+        const senderAndRecipient = [updatedSenderUser, updatedRecipientUser];
+        res.send(senderAndRecipient);
+      }
+
+      if (+req.query.money > +senderPrevCash) {
+        const updatedSenderUser = {
+          ...data[senderIndex],
+          cash: 0,
+          credit: +senderPrevCredit - (+req.query.money - +senderPrevCash),
+        };
+        data[senderIndex] = updatedSenderUser;
+
+        const updatedRecipientUser = {
+          ...data[recipientIndex],
+          credit: +recipientPrevCredit + +req.query.money,
+        };
+        data[recipientIndex] = updatedRecipientUser;
+
+        writeToBankFile(data);
+        res.send(updatedSenderUser);
+      }
+    } else {
+      res.status(STATUS_CODE.BAD_REQUEST);
+      res.send(
+        "Error transferring money , The sender or the recipient account is inActive."
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+}
+
+// @des      Gets active users
+// @route    GET /api/v1/bank/active-users/true
+// @access   Public
+export function getActiveUsers(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const activeUsers = data.filter((user) => user.isActive);
+    res.send(activeUsers);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// @des      Gets active users with x amount of cash
+// @route    GET /api/v1/bank/active-users/true/amount?cash=[x]
+// @access   Public
+export function getActiveUsersWithXCash(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const activeUsersWithXCash = data.filter(
+      (user) => user.isActive && user.cash >= req.query.cash
+    );
+    if (activeUsersWithXCash.length === 0) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error("No users found");
     }
 
-    if (+req.query.money > +senderPrevCash) {
-      const updatedSenderUser = {
-        ...data[senderIndex],
-        cash: 0,
-        credit: +senderPrevCredit - (+req.query.money - +senderPrevCash),
-      };
-      data[senderIndex] = updatedSenderUser;
+    res.send(activeUsersWithXCash);
+  } catch (error) {
+    next(error);
+  }
+}
 
-      const updatedRecipientUser = {
-        ...data[recipientIndex],
-        credit: +recipientPrevCredit + +req.query.money,
-      };
-      data[recipientIndex] = updatedRecipientUser;
-
-      writeToBankFile(data);
-      res.send(updatedSenderUser);
-    }
+// @des      Gets inActive users
+// @route    GET /api/v1/bank/active-users/false
+// @access   Public
+export function getInActiveUsers(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const inActiveUsers = data.filter((user) => !user.isActive);
+    res.send(inActiveUsers);
   } catch (error) {
     next(error);
   }
