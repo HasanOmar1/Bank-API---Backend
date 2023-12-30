@@ -1,2 +1,2 @@
 import "dotenv/config";
-export const filePath = "C:/Users/Hasan/Desktop/BankAPI/data/data.json";
+export const filePath = process.env.JSON_PATH;
