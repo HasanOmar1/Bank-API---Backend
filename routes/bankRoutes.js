@@ -7,7 +7,8 @@ import {
   filterUsersByLetter,
   filterUsersByLowerCash,
   getActiveUsers,
-  getActiveUsersWithXCash,
+  getActiveUsersWithHigherCash,
+  getActiveUsersWithLowerCash,
   getBankData,
   getInActiveUsers,
   getUserById,
@@ -24,7 +25,8 @@ router.get("/users/name", filterUsersByLetter);
 router.get("/users/higher-than", filterUsersByHigherCash);
 router.get("/users/lower-than", filterUsersByLowerCash);
 router.get("/active-users/true", getActiveUsers);
-router.get("/active-users/true/amount", getActiveUsersWithXCash);
+router.get("/active-users/true/higher-than", getActiveUsersWithHigherCash);
+router.get("/active-users/true/lower-than", getActiveUsersWithLowerCash);
 router.get("/active-users/false", getInActiveUsers);
 router.put("/:id", updateUserCredit);
 router.put("/deposit/:id", depositCash);

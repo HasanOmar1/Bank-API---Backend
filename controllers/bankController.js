@@ -358,26 +358,45 @@ export function getActiveUsers(req, res, next) {
   }
 }
 
-// @des      Gets active users with x amount of cash
-// @route    GET /api/v1/bank/active-users/true/amount?cash=[x]
+// @des      Gets active users with higher/equals x amount of cash
+// @route    GET /api/v1/bank/active-users/true/higher-than?cash=[x]
 // @access   Public
-export function getActiveUsersWithXCash(req, res, next) {
+export function getActiveUsersWithHigherCash(req, res, next) {
   try {
     const data = readFromBankFile();
-    const activeUsersWithXCash = data.filter(
+    const activeUsersWithHigherCash = data.filter(
       (user) => user.isActive && user.cash >= req.query.cash
     );
-    if (activeUsersWithXCash.length === 0) {
+    if (activeUsersWithHigherCash.length === 0) {
       res.status(STATUS_CODE.NOT_FOUND);
       throw new Error("No users found");
     }
 
-    res.send(activeUsersWithXCash);
+    res.send(activeUsersWithHigherCash);
   } catch (error) {
     next(error);
   }
 }
 
+// @des      Gets active users with lower/equals x amount of cash
+// @route    GET /api/v1/bank/active-users/true/lower-than?cash=[x]
+// @access   Public
+export function getActiveUsersWithLowerCash(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const activeUsersWithLowerCash = data.filter(
+      (user) => user.isActive && user.cash <= req.query.cash
+    );
+    if (activeUsersWithLowerCash.length === 0) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error("No users found");
+    }
+
+    res.send(activeUsersWithLowerCash);
+  } catch (error) {
+    next(error);
+  }
+}
 // @des      Gets inActive users
 // @route    GET /api/v1/bank/active-users/false
 // @access   Public
