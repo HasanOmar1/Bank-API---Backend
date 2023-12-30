@@ -79,7 +79,62 @@ export function getUserById(req, res, next) {
   }
 }
 
-export function getUsersByCash(req, res, next) {}
+// @des      Gets users who has higher or equal than x amount of cash
+// @route    GET /api/v1/bank/users/higher-than?cash=[amount]
+// @access   Public
+export function filterUsersByHigherCash(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const filteredUsers = data.filter((user) => user.cash >= req.query.cash);
+    if (filteredUsers.length === 0) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error(
+        `Cannot find any users with ${req.query.cash}$ cash or higher in their bank account.`
+      );
+    }
+    res.send(filteredUsers);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// @des      Gets users who has less or equal than x amount of cash
+// @route    GET /api/v1/bank/users/lower-than?cash=[amount]
+// @access   Public
+export function filterUsersByLowerCash(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const filteredUsers = data.filter((user) => user.cash <= req.query.cash);
+    if (filteredUsers.length === 0) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error(
+        `Cannot find any users who have less than ${req.query.cash}$ cash in their bank account.`
+      );
+    }
+    res.send(filteredUsers);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// @des      Gets users whose names contains the search value
+// @route    GET /api/v1/bank/users/name?search=[user name]
+// @access   Public
+export function filterUsersByLetter(req, res, next) {
+  try {
+    const data = readFromBankFile();
+    const filteredUsers = data.filter((user) =>
+      user.name.toLowerCase().includes(req.query.search.toLowerCase())
+    );
+    if (filteredUsers.length === 0) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error(`No users found.`);
+    }
+    res.send(filteredUsers);
+  } catch (error) {
+    next(error);
+  }
+}
 
 // @des      Deposits cash in bank
 // @route    PUT /api/v1/bank/deposit-cash/:id?cash=[cash value]
@@ -230,8 +285,8 @@ export function transferMoney(req, res, next) {
       data[recipientIndex] = updatedRecipientUser;
 
       writeToBankFile(data);
-      res.send(updatedSenderUser);
-      res.send(updatedRecipientUser);
+      const senderAndRecipient = [updatedSenderUser, updatedRecipientUser];
+      res.send(senderAndRecipient);
     }
 
     if (+req.query.money > +senderPrevCash) {
