@@ -18,7 +18,7 @@ router.post("/", createUser);
 router.put("/:id", updateUserCredit);
 router.put("/deposit/:id", depositCash);
 router.put("/withdraw/:id", withdrawMoney);
-router.put("/transfer/:recipientId/from/:senderId", transferMoney);
+router.put("/transfer/from/:senderId/to/:recipientId", transferMoney);
 router.delete("/:id", deleteUser);
 
 export default router;

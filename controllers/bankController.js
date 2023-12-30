@@ -79,6 +79,8 @@ export function getUserById(req, res, next) {
   }
 }
 
+export function getUsersByCash(req, res, next) {}
+
 // @des      Deposits cash in bank
 // @route    PUT /api/v1/bank/deposit-cash/:id?cash=[cash value]
 // @access   Public
@@ -183,7 +185,7 @@ export function withdrawMoney(req, res, next) {
 }
 
 // @des      Transfers money from one user to another [money goes to credit]
-// @route    PUT /api/v1/bank/transfer/:recipientId/from/:senderId?money=[value]
+// @route    PUT /api/v1/bank/transfer/from/:senderId/to/:recipientId?money=[value]
 // @access   Public
 export function transferMoney(req, res, next) {
   try {
@@ -208,6 +210,12 @@ export function transferMoney(req, res, next) {
       res.status(STATUS_CODE.BAD_REQUEST);
       throw new Error("You don't have that amount of money to transfer.");
     }
+
+    if (senderIndex === recipientIndex) {
+      res.status(STATUS_CODE.CONFLICT);
+      throw new Error("You Cannot send money to yourself!");
+    }
+
     if (+senderPrevCash > +req.query.money) {
       const updatedSenderUser = {
         ...data[senderIndex],
