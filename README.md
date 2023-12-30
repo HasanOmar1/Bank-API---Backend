@@ -12,6 +12,7 @@ I have json data with users , each user has :
 - Name
 - Cash
 - Credit
+- isActive
 
 ---
 
@@ -27,6 +28,18 @@ Backend Link : https://bank-api-backend.onrender.com/
 
 ```json
 ( /api/v1/bank )
+```
+
+- You can get all of the active users info.
+
+```json
+( /api/v1/bank/active-users/true )
+```
+
+- You can get all of the inActive users info.
+
+```json
+( /api/v1/bank/active-users/false )
 ```
 
 - You can get a specific user info by typing his ID.
