@@ -42,7 +42,11 @@ Backend Link : https://bank-api-backend.onrender.com/
 (api/v1/bank/users/lower-than?cash=[x amount])
 ```
 
-- You can get all of the users who has higher/equal amount of cash in the bank. (api/v1/bank/users/higher-than?cash=[x amount])
+- You can get all of the users who has higher/equal amount of cash in the bank.
+
+```json
+(api/v1/bank/users/higher-than?cash=[x amount])
+```
 
 - You can create a new user.
 - You can delete a user.
