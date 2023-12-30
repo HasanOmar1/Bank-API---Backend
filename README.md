@@ -2,11 +2,16 @@
 
 I have created a backend server for a bank API using express.
 
-I have used Postman for the endpoints.
+I have used Postman for the endpoints with a port of 9999.
 
 ### Users info:
 
-I have a json data with users , each user has : ID , Name , Cash and Credit.
+I have json data with users , each user has :
+
+- auto generated ID
+- Name
+- Cash
+- Credit.
 
 ---
 
@@ -65,3 +70,15 @@ Backend Link : https://bank-api-backend.onrender.com/
   he will withdraw from his credit.
 
 - When a user transfers money from his bank account to another user , he will transfer using cash and if he doesn't have cash anymore he will transfer his credit , and the other user will always get the money as credit and not cash.
+
+## How to:
+
+I have mentioned above how to GET users info , in this section i will be putting the URLs for the other endpoints.
+You can try these endpoints in Postman like i did.
+
+- Create a user: api/v1/bank then put the user info in the body. [name , cash , credit]
+- Delete a user: /api/v1/bank/ [user id]
+- Deposit cash to a user: /api/v1/bank/deposit/ [user id] ?cash=[amount of cash]
+- Update credits of a user: /api/v1/bank/ [user id] ?credit=[amount of credit]
+- Withdraw money : /api/v1/bank/withdraw/ [user id] ?money=[amount of money]
+- Transfer money: /api/v1/bank/transfer/from/ [sender id] /to/ [recipient id] ?money=[amount of money]
