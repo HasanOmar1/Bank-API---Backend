@@ -169,7 +169,7 @@ export function depositCash(req, res, next) {
       res.send(updatedUser);
     } else {
       res.status(STATUS_CODE.BAD_REQUEST);
-      res.send("Cannot deposit cash to inActive users!");
+      throw new Error("Cannot deposit cash to inActive users!");
     }
   } catch (error) {
     next(error);
@@ -203,7 +203,7 @@ export function updateUserCredit(req, res, next) {
       res.send(updatedUser);
     } else {
       res.status(STATUS_CODE.BAD_REQUEST);
-      res.send("Cannot update credits of inActive users!");
+      throw new Error("Cannot update credits of inActive users!");
     }
   } catch (error) {
     next(error);
@@ -252,7 +252,7 @@ export function withdrawMoney(req, res, next) {
       }
     } else {
       res.status(STATUS_CODE.BAD_REQUEST);
-      res.send("Cannot withdraw money from inActive account!");
+      throw new Error("Cannot withdraw money from inActive account!");
     }
   } catch (error) {
     next(error);
@@ -332,7 +332,7 @@ export function transferMoney(req, res, next) {
       }
     } else {
       res.status(STATUS_CODE.BAD_REQUEST);
-      res.send(
+      throw new Error(
         "Error transferring money , The sender or the recipient account is inActive."
       );
     }
@@ -348,6 +348,10 @@ export function getActiveUsers(req, res, next) {
   try {
     const data = readFromBankFile();
     const activeUsers = data.filter((user) => user.isActive);
+    if (activeUsers.length === 0) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error("Cannot find any active users.");
+    }
     res.send(activeUsers);
   } catch (error) {
     next(error);
@@ -381,6 +385,10 @@ export function getInActiveUsers(req, res, next) {
   try {
     const data = readFromBankFile();
     const inActiveUsers = data.filter((user) => !user.isActive);
+    if (inActiveUsers.length === 0) {
+      res.status(STATUS_CODE.NOT_FOUND);
+      throw new Error("Cannot find any inActive users.");
+    }
     res.send(inActiveUsers);
   } catch (error) {
     next(error);
