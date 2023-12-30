@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Info</title>
+  </head>
+  <body style="background-color: #223; color: white">
+    <h1>Welcome</h1>
+    <h2>If you want to see all of the bank's data , go to this URL:</h2>
+    <h2 style="color: green">/api/v1/bank</h2>
+    <hr />
+    <h2>If you want to see a specific user info , go to this URL:</h2>
+    <h2 style="color: green">
+      /api/v1/bank/ <span style="color: red">[id of the user]</span>
+    </h2>
+    <hr />
+    <h2>If you want to search for a user by name/letter , go to this URL:</h2>
+    <h2 style="color: green">
+      /api/v1/bank/users/name?search=
+      <span style="color: red">[letter/name]</span>
+    </h2>
+    <hr />
+    <h2>
+      If you want to search for users who has higher/equal cash to x amount , go
+      to this URL:
+    </h2>
+    <h2 style="color: green">
+      /api/v1/bank/users/higher-than?cash=
+      <span style="color: red">[x amount]</span>
+    </h2>
+    <hr />
+    <h2>
+      If you want to search for users who has lower/equal cash to x amount , go
+      to this URL:
+    </h2>
+    <h2 style="color: green">
+      /api/v1/bank/users/lower-than?cash=
+      <span style="color: red">[x amount]</span>
+    </h2>
+  </body>
+</html>
