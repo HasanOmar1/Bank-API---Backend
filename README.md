@@ -96,7 +96,7 @@ Backend Link : https://bank-api-backend.onrender.com/
 
 - When a user transfers money from his bank account to another user , he will transfer using cash and if he doesn't have cash anymore he will transfer his credit , and the other user will always get the money as credit and not as cash.
 
-- You cannot deposit , withdraw , update credit , transfer from/to inActive users!
+- You cannot deposit , withdraw , update credit and transfer from/to inActive users!
 
 ---
 
