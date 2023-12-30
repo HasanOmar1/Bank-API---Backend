@@ -11,7 +11,7 @@ I have json data with users , each user has :
 - auto generated ID [used uuid package]
 - Name
 - Cash
-- Credit.
+- Credit
 
 ---
 
