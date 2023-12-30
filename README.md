@@ -19,6 +19,11 @@ Backend Link : https://bank-api-backend.onrender.com/
 # What can you do in this server & How?
 
 - You can get all of the users info.
+
+```json
+( /api/v1/bank )
+```
+
 - You can get a specific user info by typing his ID. (/api/v1/bank/[id of the user])
 - You can search by name / letter to get users info. (/api/v1/bank/users/name?search=[letter/name of the user/users])
 - You can get all of the users who has lower/equal amount of cash in the bank. (api/v1/bank/users/lower-than?cash=[x amount])
